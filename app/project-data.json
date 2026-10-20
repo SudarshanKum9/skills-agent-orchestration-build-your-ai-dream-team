@@ -1,0 +1,28 @@
+{
+  "projects": [
+    {
+      "name": "Atlas",
+      "owner": "Maya Chen",
+      "status": "On track",
+      "recentActivity": "Design review completed 2 days ago",
+      "priority": "High",
+      "summary": "Building a shared search experience so customers can find information across the product."
+    },
+    {
+      "name": "Northstar",
+      "owner": "Jordan Lee",
+      "status": "Needs attention",
+      "recentActivity": "Dependency review scheduled for this week",
+      "priority": "Medium",
+      "summary": "Clarifying the next quarter's roadmap and aligning milestones across the platform teams."
+    },
+    {
+      "name": "Beacon",
+      "owner": "Sam Rivera",
+      "status": "In progress",
+      "recentActivity": "Prototype feedback gathered yesterday",
+      "priority": "Low",
+      "summary": "Creating a lightweight onboarding guide to help new contributors make their first change."
+    }
+  ]
+}

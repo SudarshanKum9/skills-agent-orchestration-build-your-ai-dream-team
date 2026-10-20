@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A quick overview of project ownership, status, activity, and priority.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <p class="eyebrow">Team overview</p>
+        <h1>Project Pulse</h1>
+        <p>A clear view of what teams are working on and what needs attention.</p>
+      </header>
+
+      <section aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <h2 id="projects-heading">Projects</h2>
+        </div>
+        <p id="loading-state" role="status" aria-live="polite">Loading projects…</p>
+        <p id="empty-state" role="status" hidden>No projects to show yet.</p>
+        <p id="error-state" role="alert" hidden>Projects could not be loaded. Please try again later.</p>
+        <div id="project-list" class="project-list" aria-live="polite" aria-busy="true"></div>
+      </section>
+    </main>
+
+    <script>
+      const projectList = document.querySelector("#project-list");
+      const loadingState = document.querySelector("#loading-state");
+      const emptyState = document.querySelector("#empty-state");
+      const errorState = document.querySelector("#error-state");
+
+      function setState(state) {
+        loadingState.hidden = state !== "loading";
+        emptyState.hidden = state !== "empty";
+        errorState.hidden = state !== "error";
+        projectList.setAttribute("aria-busy", String(state === "loading"));
+      }
+
+      function addTextElement(parent, tagName, className, text) {
+        const element = document.createElement(tagName);
+        if (className) element.className = className;
+        element.textContent = text;
+        parent.append(element);
+        return element;
+      }
+
+      function addDetail(details, label, value) {
+        addTextElement(details, "dt", "", label);
+        addTextElement(details, "dd", "", value || "Not provided");
+      }
+
+      function renderProject(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const cardHeader = document.createElement("header");
+        addTextElement(cardHeader, "h3", "", project.name || "Untitled project");
+
+        const badges = document.createElement("div");
+        badges.className = "project-badges";
+        const status = addTextElement(badges, "span", "status-badge", project.status || "Status unavailable");
+        status.setAttribute("aria-label", `Status: ${project.status || "unavailable"}`);
+        const priority = addTextElement(badges, "span", "priority-badge", project.priority || "Priority unavailable");
+        priority.setAttribute("aria-label", `Priority: ${project.priority || "unavailable"}`);
+        cardHeader.append(badges);
+        card.append(cardHeader);
+
+        const details = document.createElement("dl");
+        details.className = "project-details";
+        addDetail(details, "Owner", project.owner);
+        addDetail(details, "Status", project.status);
+        addDetail(details, "Recent activity", project.recentActivity);
+        addDetail(details, "Priority", project.priority);
+        card.append(details);
+        addTextElement(card, "p", "project-summary", project.summary || "No summary provided.");
+        return card;
+      }
+
+      async function loadProjects() {
+        setState("loading");
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) throw new Error(`Project data request failed: ${response.status}`);
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+
+          projectList.replaceChildren();
+          if (data.projects.length === 0) {
+            setState("empty");
+            return;
+          }
+
+          data.projects.forEach((project) => projectList.append(renderProject(project)));
+          setState("ready");
+        } catch (error) {
+          console.error("Unable to load Project Pulse data:", error);
+          setState("error");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
